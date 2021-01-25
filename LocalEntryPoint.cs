@@ -13,6 +13,10 @@ namespace GraphQLDataServer
         static IConfiguration Configuration;
         public static void Main(string[] args)
         {
+            Configuration = new ConfigurationBuilder()
+            //  .AddSystemsManager("/lambda")
+              .Build();
+
             CreateHostBuilder(args).Build().Run();
         }
 
