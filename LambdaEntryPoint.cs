@@ -25,6 +25,7 @@ using ServiceStack.Redis;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using HotChocolate.Language;
+using ServiceStack;
 
 [assembly: LambdaSerializer(typeof(DefaultLambdaJsonSerializer))]
 namespace GraphQLDataServer
@@ -66,13 +67,14 @@ namespace GraphQLDataServer
 
              msgInitialiser = serviceProvider.GetService<IMessageSerializer>();
 
-        }
-
+        }  
+        
         public async ValueTask HandleGraphQLMessage(SQSEvent sqsEvent, ILambdaContext context)
         {
             
             try
             {
+                var awsCredentials = new BasicAWSCredentials("bbbbbbbbbbbbbbbbbbbbb", "zzzzzzzzzzzzzzzzzzzzz");
                 var region = RegionEndpoint.GetBySystemName("us-east-1");
 
                
@@ -86,6 +88,9 @@ namespace GraphQLDataServer
                 foreach (var record in sqsEvent.Records)
                 {
                             Console.WriteLine($"In Graphql server {record.Body}");
+                    dynamic obj = JsonConvert.DeserializeObject(record.Body);
+                    object msg = obj.data;
+                    Console.WriteLine($"DYNAMIC {msg}");
                        
                         using (var client = new AmazonLambdaClient(awsCredentials, region))
                         {
@@ -142,8 +147,9 @@ namespace GraphQLDataServer
                 {
                     var x = redis.As<MessageType>();
                     var m = x.GetAll();
-                    msgType = m[0];
+                    msgType = m[12];
                     Console.WriteLine($"MessageType {m[0].Subscription}");
+                    Console.WriteLine($"MessageType count {m.Count}");
                 }
             }
             return msgType;
